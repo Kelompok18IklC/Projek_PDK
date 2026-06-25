@@ -456,13 +456,15 @@ with tab4:
                 except Exception:
                     box_data.append(np.array([]))
 
-            bp = ax5.boxplot(box_data, labels=labels, patch_artist=True, notch=False,
-                             medianprops={"color":"#f97316","linewidth":2})
+            bp = ax5.boxplot(box_data, patch_artist=True,
+                             medianprops={"color":"#f97316","linewidth":2},
+                             whiskerprops={"color":"#7ec8e3","linewidth":1.5},
+                             capprops={"color":"#7ec8e3","linewidth":1.5},
+                             flierprops={"markerfacecolor":"#7ec8e3","markersize":3})
+            ax5.set_xticks(range(1, len(labels)+1))
+            ax5.set_xticklabels(labels, rotation=30, color="#7ec8e3")
             for patch, c in zip(bp["boxes"], OCEAN_COLORS):
                 patch.set_facecolor(c); patch.set_alpha(0.7)
-            for element in ["whiskers","caps","fliers"]:
-                for item in bp[element]:
-                    item.set_color("#7ec8e3")
             ax5.set_ylabel(VAR_LABEL, color="#7ec8e3")
             ax5.set_title("Boxplot SST per Periode", color="#38bdf8", fontweight="bold")
             ax5.grid(True, axis="y", color="#0a4a6e", alpha=0.5, linestyle="--")
