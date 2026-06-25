@@ -2,6 +2,5 @@ streamlit
 xarray
 netCDF4
 matplotlib
-cartopy==0.22.0
 pandas
 numpy
