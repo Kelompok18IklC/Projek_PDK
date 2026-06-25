@@ -456,7 +456,7 @@ with tab4:
                 except Exception:
                     box_data.append(np.array([]))
 
-            bp = ax5.boxplot(box_data, labels=labels, patch_artist=True, notch=True,
+            bp = ax5.boxplot(box_data, labels=labels, patch_artist=True, notch=False,
                              medianprops={"color":"#f97316","linewidth":2})
             for patch, c in zip(bp["boxes"], OCEAN_COLORS):
                 patch.set_facecolor(c); patch.set_alpha(0.7)
