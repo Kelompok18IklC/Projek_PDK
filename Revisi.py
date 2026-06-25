@@ -8,9 +8,6 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 from pathlib import Path
 import warnings
 warnings.filterwarnings("ignore")
@@ -30,27 +27,17 @@ st.set_page_config(
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
-/* ── Import font ── */
 @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&display=swap');
-
-/* ── Background utama ── */
 .stApp {
     background: linear-gradient(160deg, #020e1f 0%, #041c33 40%, #062a4a 100%);
     font-family: 'Exo 2', sans-serif;
     color: #d0eaf8;
 }
-
-/* ── Sidebar ── */
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #031525 0%, #052238 100%);
     border-right: 1px solid #0a4a6e;
 }
 [data-testid="stSidebar"] * { color: #a8d8f0 !important; }
-[data-testid="stSidebar"] .stSelectbox label,
-[data-testid="stSidebar"] .stMultiSelect label,
-[data-testid="stSidebar"] .stSlider label { color: #7ec8e3 !important; font-weight: 600; }
-
-/* ── Header utama ── */
 .sst-header {
     background: linear-gradient(90deg, #041c33, #0a4a6e, #0e7490, #0a4a6e, #041c33);
     background-size: 200% auto;
@@ -62,7 +49,6 @@ st.markdown("""
     box-shadow: 0 0 32px rgba(14,116,144,0.4), inset 0 0 60px rgba(0,0,0,0.3);
 }
 @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
-
 .sst-header h1 {
     font-size: 2.4rem;
     font-weight: 700;
@@ -71,14 +57,7 @@ st.markdown("""
     margin: 0 0 6px 0;
     letter-spacing: 1px;
 }
-.sst-header p {
-    color: #7ec8e3;
-    margin: 0;
-    font-size: 0.95rem;
-    letter-spacing: 0.5px;
-}
-
-/* ── Wave divider ── */
+.sst-header p { color: #7ec8e3; margin: 0; font-size: 0.95rem; letter-spacing: 0.5px; }
 .wave-divider {
     text-align: center;
     font-size: 1.5rem;
@@ -88,8 +67,6 @@ st.markdown("""
     animation: wave 2s ease-in-out infinite;
 }
 @keyframes wave { 0%,100%{opacity:0.4} 50%{opacity:1} }
-
-/* ── Metric cards ── */
 [data-testid="stMetric"] {
     background: linear-gradient(135deg, #031e35, #052d4a);
     border: 1px solid #1565a0;
@@ -104,89 +81,35 @@ st.markdown("""
 }
 [data-testid="stMetricLabel"] { color: #7ec8e3 !important; font-weight: 600; }
 [data-testid="stMetricValue"] { color: #38bdf8 !important; font-size: 1.6rem !important; font-weight: 700; }
-
-/* ── Tabs ── */
 [data-testid="stTabs"] [role="tablist"] {
-    background: #031525;
-    border-radius: 10px;
-    padding: 4px;
-    border: 1px solid #0a4a6e;
+    background: #031525; border-radius: 10px; padding: 4px; border: 1px solid #0a4a6e;
 }
-[data-testid="stTabs"] button {
-    color: #7ec8e3 !important;
-    font-weight: 600;
-    border-radius: 8px;
-    transition: all 0.2s;
-}
+[data-testid="stTabs"] button { color: #7ec8e3 !important; font-weight: 600; border-radius: 8px; transition: all 0.2s; }
 [data-testid="stTabs"] button[aria-selected="true"] {
     background: linear-gradient(135deg, #0369a1, #0e7490) !important;
     color: #ffffff !important;
     box-shadow: 0 2px 10px rgba(14,116,144,0.5);
 }
-
-/* ── Expander ── */
-[data-testid="stExpander"] {
-    background: #031e35;
-    border: 1px solid #1565a0;
-    border-radius: 10px;
-}
-
-/* ── DataFrame ── */
+[data-testid="stExpander"] { background: #031e35; border: 1px solid #1565a0; border-radius: 10px; }
 [data-testid="stDataFrame"] { border: 1px solid #1565a0; border-radius: 10px; }
-
-/* ── Selectbox / Slider / Multiselect ── */
-[data-testid="stSelectbox"] > div > div,
-[data-testid="stMultiSelect"] > div > div {
-    background: #031e35 !important;
-    border: 1px solid #1565a0 !important;
-    color: #a8d8f0 !important;
-    border-radius: 8px !important;
-}
-
-/* ── Download button ── */
 [data-testid="stDownloadButton"] button {
     background: linear-gradient(135deg, #0369a1, #0e7490);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.2s;
+    color: white; border: none; border-radius: 8px; font-weight: 600; transition: all 0.2s;
 }
 [data-testid="stDownloadButton"] button:hover {
     background: linear-gradient(135deg, #0284c7, #0891b2);
     box-shadow: 0 4px 15px rgba(14,116,144,0.5);
     transform: translateY(-2px);
 }
-
-/* ── Caption / footer ── */
-.footer-text {
-    text-align: center;
-    color: #4a9ab5;
-    font-size: 0.8rem;
-    padding: 12px;
-    border-top: 1px solid #0a4a6e;
-    margin-top: 20px;
-}
-
-/* ── Info/error box ── */
-[data-testid="stAlert"] {
-    background: #031e35 !important;
-    border-left: 4px solid #0e7490 !important;
-    color: #a8d8f0 !important;
-    border-radius: 8px;
-}
-
-/* ── Subheader ── */
+[data-testid="stAlert"] { background: #031e35 !important; border-left: 4px solid #0e7490 !important; color: #a8d8f0 !important; border-radius: 8px; }
+.footer-text { text-align: center; color: #4a9ab5; font-size: 0.8rem; padding: 12px; border-top: 1px solid #0a4a6e; margin-top: 20px; }
 h2, h3 { color: #38bdf8 !important; }
 h4 { color: #7ec8e3 !important; }
-
-/* ── Plot background ── */
-.stPlotlyChart, .stpyplot { border-radius: 12px; overflow: hidden; }
 </style>
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
-#  KONSTANTA — SESUAIKAN DI SINI
+#  KONSTANTA
 # ─────────────────────────────────────────────
 DATA_DIR  = Path(".")
 NC_FILES  = {
@@ -196,13 +119,13 @@ NC_FILES  = {
     "2016-2017": DATA_DIR / "2016-2017.nc",
     "2018-2019": DATA_DIR / "2018-2019.nc",
 }
-
 VAR_LAT   = "lat"
 VAR_LON   = "lon"
 VAR_TIME  = "time"
-VAR_MAIN  = "sst"           # ganti sesuai nama variabel di file .nc
+VAR_MAIN  = "sst"
 VAR_LABEL = "SST (°C)"
-COLORMAP  = "RdYlBu_r"      # colormap panas-dingin cocok untuk SST
+COLORMAP  = "RdYlBu_r"
+OCEAN_COLORS = ["#0e7490","#0369a1","#22d3ee","#38bdf8","#7dd3fc"]
 
 # ─────────────────────────────────────────────
 #  HELPER
@@ -221,18 +144,12 @@ def auto_detect_var(ds: xr.Dataset) -> str:
     candidates = [v for v in ds.data_vars if ds[v].ndim >= 2]
     return candidates[0] if candidates else list(ds.data_vars)[0]
 
-def ocean_style_fig(facecolor="#020e1f"):
-    """Return matplotlib fig/ax dengan background tema laut."""
-    fig, ax = plt.subplots(facecolor=facecolor)
+def style_ax(ax):
     ax.set_facecolor("#031525")
     for spine in ax.spines.values():
         spine.set_edgecolor("#1565a0")
     ax.tick_params(colors="#7ec8e3")
-    ax.xaxis.label.set_color("#7ec8e3")
-    ax.yaxis.label.set_color("#7ec8e3")
-    ax.title.set_color("#38bdf8")
     ax.grid(True, color="#0a4a6e", alpha=0.5, linestyle="--")
-    return fig, ax
 
 # ─────────────────────────────────────────────
 #  HEADER
@@ -290,15 +207,13 @@ with st.sidebar:
     st.markdown("<p style='color:#7ec8e3; font-weight:600; font-size:0.9rem;'>⚖️ Perbandingan Periode</p>",
                 unsafe_allow_html=True)
     compare_periods = st.multiselect(
-        "Pilih periode",
-        list(NC_FILES.keys()),
+        "Pilih periode", list(NC_FILES.keys()),
         default=list(NC_FILES.keys())[:2],
     )
-
     st.markdown("""
     <hr style='border-color:#0a4a6e;'>
     <p style='text-align:center; color:#4a9ab5; font-size:0.75rem;'>
-      🌊 Streamlit · xarray · Cartopy<br>Python 3 · PROJEK PDK
+      🌊 Streamlit · xarray · Python 3<br>PROJEK PDK
     </p>
     """, unsafe_allow_html=True)
 
@@ -309,18 +224,18 @@ try:
     _arr_all = da.values.flatten()
     _arr_all = _arr_all[~np.isnan(_arr_all)]
     c1, c2, c3, c4, c5 = st.columns(5)
-    c1.metric("🌡️ SST Min",    f"{_arr_all.min():.2f} °C")
-    c2.metric("🌡️ SST Max",    f"{_arr_all.max():.2f} °C")
-    c3.metric("📊 Rata-rata",  f"{_arr_all.mean():.2f} °C")
-    c4.metric("📐 Median",     f"{np.median(_arr_all):.2f} °C")
-    c5.metric("📉 Std Dev",    f"{_arr_all.std():.2f} °C")
+    c1.metric("🌡️ SST Min",   f"{_arr_all.min():.2f} °C")
+    c2.metric("🌡️ SST Max",   f"{_arr_all.max():.2f} °C")
+    c3.metric("📊 Rata-rata", f"{_arr_all.mean():.2f} °C")
+    c4.metric("📐 Median",    f"{np.median(_arr_all):.2f} °C")
+    c5.metric("📉 Std Dev",   f"{_arr_all.std():.2f} °C")
 except Exception:
     pass
 
 st.markdown("<div style='margin:8px 0;'></div>", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
-#  TAB UTAMA
+#  TABS
 # ─────────────────────────────────────────────
 tab1, tab2, tab3, tab4 = st.tabs([
     "🗺️  Peta SST",
@@ -330,7 +245,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 # ══════════════════════════════════════════════
-#  TAB 1 — PETA
+#  TAB 1 — PETA (tanpa cartopy)
 # ══════════════════════════════════════════════
 with tab1:
     st.subheader(f"🗺️ Peta Suhu Permukaan Laut — {selected_period}")
@@ -348,57 +263,35 @@ with tab1:
 
     col_map, col_info = st.columns([3, 1])
     with col_map:
-        try:
-            fig, ax = plt.subplots(
-                figsize=(11, 6),
-                facecolor="#020e1f",
-                subplot_kw={"projection": ccrs.PlateCarree()},
-            )
-            ax.set_facecolor("#031525")
-            lat_vals = data_2d[lat_dim].values
-            lon_vals = data_2d[lon_dim].values
-            vals     = data_2d.values
+        fig, ax = plt.subplots(figsize=(11, 6), facecolor="#020e1f")
+        style_ax(ax)
 
-            im = ax.pcolormesh(lon_vals, lat_vals, vals,
-                               transform=ccrs.PlateCarree(),
-                               cmap=COLORMAP, shading="auto")
-            ax.add_feature(cfeature.OCEAN,     facecolor="#041c33")
-            ax.add_feature(cfeature.LAND,      facecolor="#1a2a1a", alpha=0.85)
-            ax.add_feature(cfeature.COASTLINE, linewidth=0.8, edgecolor="#38bdf8")
-            ax.add_feature(cfeature.BORDERS,   linewidth=0.4, linestyle="--", edgecolor="#4a9ab5")
-            gl = ax.gridlines(draw_labels=True, linewidth=0.4,
-                              color="#0a4a6e", alpha=0.7)
-            gl.xlabel_style = {"color": "#7ec8e3", "size": 8}
-            gl.ylabel_style = {"color": "#7ec8e3", "size": 8}
-            cb = plt.colorbar(im, ax=ax, label=VAR_LABEL, shrink=0.8, pad=0.02)
-            cb.ax.yaxis.label.set_color("#7ec8e3")
-            cb.ax.tick_params(colors="#7ec8e3")
-            cb.outline.set_edgecolor("#0a4a6e")
-            ax.set_title(f"Sea Surface Temperature — {selected_period}",
-                         fontsize=13, fontweight="bold", color="#38bdf8", pad=10)
-            st.pyplot(fig, use_container_width=True)
-            plt.close(fig)
-        except Exception as e:
-            st.warning(f"Cartopy error: {e} — fallback mode")
-            fig, ax = plt.subplots(figsize=(11, 5), facecolor="#020e1f")
-            ax.set_facecolor("#031525")
-            im = ax.imshow(data_2d.values, origin="lower", aspect="auto", cmap=COLORMAP)
-            cb = plt.colorbar(im, ax=ax, label=VAR_LABEL)
-            cb.ax.yaxis.label.set_color("#7ec8e3")
-            cb.ax.tick_params(colors="#7ec8e3")
-            ax.set_title(f"SST — {selected_period}", color="#38bdf8", fontweight="bold")
-            ax.tick_params(colors="#7ec8e3")
-            st.pyplot(fig, use_container_width=True)
-            plt.close(fig)
+        lat_vals = data_2d[lat_dim].values
+        lon_vals = data_2d[lon_dim].values
+        vals     = data_2d.values
+
+        im = ax.pcolormesh(lon_vals, lat_vals, vals, cmap=COLORMAP, shading="auto")
+        cb = plt.colorbar(im, ax=ax, label=VAR_LABEL, shrink=0.8, pad=0.02)
+        cb.ax.yaxis.label.set_color("#7ec8e3")
+        cb.ax.tick_params(colors="#7ec8e3")
+        cb.outline.set_edgecolor("#0a4a6e")
+
+        ax.set_xlabel("Longitude", color="#7ec8e3")
+        ax.set_ylabel("Latitude", color="#7ec8e3")
+        ax.set_title(f"Sea Surface Temperature — {selected_period}",
+                     fontsize=13, fontweight="bold", color="#38bdf8", pad=10)
+        plt.tight_layout()
+        st.pyplot(fig, use_container_width=True)
+        plt.close(fig)
 
     with col_info:
         flat = data_2d.values.flatten()
         flat = flat[~np.isnan(flat)]
         st.markdown("**📌 Info Slice**")
-        st.metric("Min", f"{flat.min():.2f} °C")
-        st.metric("Max", f"{flat.max():.2f} °C")
+        st.metric("Min",  f"{flat.min():.2f} °C")
+        st.metric("Max",  f"{flat.max():.2f} °C")
         st.metric("Mean", f"{flat.mean():.2f} °C")
-        st.metric("Std", f"{flat.std():.2f} °C")
+        st.metric("Std",  f"{flat.std():.2f} °C")
         st.markdown(f"**Grid:** `{data_2d.sizes[lat_dim]} × {data_2d.sizes[lon_dim]}`")
         st.markdown(f"**Colormap:** `{COLORMAP}`")
 
@@ -413,7 +306,6 @@ with tab2:
     else:
         spatial_dims = [d for d in da.dims if d != VAR_TIME]
         ts = da.mean(dim=spatial_dims)
-
         try:
             time_vals = pd.to_datetime(ts[VAR_TIME].values)
             df_ts = pd.DataFrame({"Tanggal": time_vals, VAR_LABEL: ts.values})
@@ -423,18 +315,12 @@ with tab2:
             x_col = "Timestep"
 
         fig, ax = plt.subplots(figsize=(13, 4), facecolor="#020e1f")
-        ax.set_facecolor("#031525")
+        style_ax(ax)
         ax.plot(df_ts[x_col], df_ts[VAR_LABEL], color="#38bdf8", linewidth=1.8, zorder=3)
-        ax.fill_between(df_ts[x_col], df_ts[VAR_LABEL],
-                        alpha=0.2, color="#0e7490")
+        ax.fill_between(df_ts[x_col], df_ts[VAR_LABEL], alpha=0.2, color="#0e7490")
         ax.set_xlabel(x_col, color="#7ec8e3")
         ax.set_ylabel(VAR_LABEL, color="#7ec8e3")
-        ax.set_title(f"Rata-rata Spasial SST — {selected_period}",
-                     fontweight="bold", color="#38bdf8")
-        ax.tick_params(colors="#7ec8e3")
-        ax.grid(True, color="#0a4a6e", alpha=0.5, linestyle="--")
-        for spine in ax.spines.values():
-            spine.set_edgecolor("#1565a0")
+        ax.set_title(f"Rata-rata Spasial SST — {selected_period}", fontweight="bold", color="#38bdf8")
         plt.tight_layout()
         st.pyplot(fig, use_container_width=True)
         plt.close(fig)
@@ -443,16 +329,10 @@ with tab2:
             window = st.slider("Window (timestep)", 2, min(60, len(df_ts)//2), 12)
             df_ts["Rolling"] = df_ts[VAR_LABEL].rolling(window, center=True).mean()
             fig2, ax2 = plt.subplots(figsize=(13, 4), facecolor="#020e1f")
-            ax2.set_facecolor("#031525")
-            ax2.plot(df_ts[x_col], df_ts[VAR_LABEL],
-                     alpha=0.35, color="#38bdf8", linewidth=1, label="Original")
-            ax2.plot(df_ts[x_col], df_ts["Rolling"],
-                     linewidth=2.2, color="#f97316", label=f"MA-{window}")
+            style_ax(ax2)
+            ax2.plot(df_ts[x_col], df_ts[VAR_LABEL], alpha=0.35, color="#38bdf8", linewidth=1, label="Original")
+            ax2.plot(df_ts[x_col], df_ts["Rolling"], linewidth=2.2, color="#f97316", label=f"MA-{window}")
             ax2.legend(facecolor="#031525", edgecolor="#1565a0", labelcolor="#d0eaf8")
-            ax2.tick_params(colors="#7ec8e3")
-            ax2.grid(True, color="#0a4a6e", alpha=0.5, linestyle="--")
-            for spine in ax2.spines.values():
-                spine.set_edgecolor("#1565a0")
             ax2.set_title("Moving Average SST", color="#38bdf8", fontweight="bold")
             plt.tight_layout()
             st.pyplot(fig2, use_container_width=True)
@@ -472,7 +352,7 @@ with tab3:
             _arr = _ds[_var].values.flatten()
             _arr = _arr[~np.isnan(_arr)]
             rows.append({
-                "Periode": period,
+                "Periode":     period,
                 "Min (°C)":    round(float(_arr.min()), 4),
                 "Max (°C)":    round(float(_arr.max()), 4),
                 "Mean (°C)":   round(float(_arr.mean()), 4),
@@ -482,8 +362,7 @@ with tab3:
             })
         except Exception:
             rows.append({"Periode": period, "Min (°C)": "N/A", "Max (°C)": "N/A",
-                         "Mean (°C)": "N/A", "Median (°C)": "N/A",
-                         "Std (°C)": "N/A", "N Grid": 0})
+                         "Mean (°C)": "N/A", "Median (°C)": "N/A", "Std (°C)": "N/A", "N Grid": 0})
 
     df_stat = pd.DataFrame(rows).set_index("Periode")
     st.dataframe(
@@ -498,20 +377,16 @@ with tab3:
     arr_curr = da.values.flatten()
     arr_curr = arr_curr[~np.isnan(arr_curr)]
     fig3, ax3 = plt.subplots(figsize=(11, 4), facecolor="#020e1f")
-    ax3.set_facecolor("#031525")
+    style_ax(ax3)
     ax3.hist(arr_curr, bins=70, color="#0e7490", alpha=0.85, edgecolor="#020e1f")
-    ax3.axvline(arr_curr.mean(),      color="#f97316", linestyle="--", linewidth=1.8,
+    ax3.axvline(arr_curr.mean(),     color="#f97316", linestyle="--", linewidth=1.8,
                 label=f"Mean: {arr_curr.mean():.3f} °C")
-    ax3.axvline(np.median(arr_curr),  color="#22d3ee", linestyle="--", linewidth=1.8,
+    ax3.axvline(np.median(arr_curr), color="#22d3ee", linestyle="--", linewidth=1.8,
                 label=f"Median: {np.median(arr_curr):.3f} °C")
     ax3.set_xlabel(VAR_LABEL, color="#7ec8e3")
     ax3.set_ylabel("Frekuensi", color="#7ec8e3")
     ax3.set_title(f"Distribusi SST — {selected_period}", color="#38bdf8", fontweight="bold")
-    ax3.tick_params(colors="#7ec8e3")
     ax3.legend(facecolor="#031525", edgecolor="#1565a0", labelcolor="#d0eaf8")
-    ax3.grid(True, color="#0a4a6e", alpha=0.5, linestyle="--")
-    for spine in ax3.spines.values():
-        spine.set_edgecolor("#1565a0")
     plt.tight_layout()
     st.pyplot(fig3, use_container_width=True)
     plt.close(fig3)
@@ -545,23 +420,17 @@ with tab4:
             except Exception:
                 pass
 
-        OCEAN_COLORS = ["#0e7490","#0369a1","#22d3ee","#38bdf8","#7dd3fc"]
-
         col_bar, col_box = st.columns(2)
         with col_bar:
             fig4, ax4 = plt.subplots(figsize=(7, 5), facecolor="#020e1f")
-            ax4.set_facecolor("#031525")
+            style_ax(ax4)
             cols = OCEAN_COLORS[:len(labels)]
             bars = ax4.bar(labels, means, yerr=stds, capsize=5,
                            color=cols, alpha=0.9, edgecolor="#020e1f", linewidth=0.8)
             ax4.set_ylabel(VAR_LABEL, color="#7ec8e3")
-            ax4.set_title("Rata-rata ± Std SST per Periode",
-                          color="#38bdf8", fontweight="bold")
-            ax4.tick_params(colors="#7ec8e3")
+            ax4.set_title("Rata-rata ± Std SST per Periode", color="#38bdf8", fontweight="bold")
             ax4.grid(True, axis="y", color="#0a4a6e", alpha=0.5, linestyle="--")
-            for spine in ax4.spines.values():
-                spine.set_edgecolor("#1565a0")
-            plt.xticks(rotation=30)
+            plt.xticks(rotation=30, color="#7ec8e3")
             for bar, m in zip(bars, means):
                 ax4.text(bar.get_x() + bar.get_width()/2,
                          bar.get_height() + max(stds)*0.02,
@@ -573,7 +442,7 @@ with tab4:
 
         with col_box:
             fig5, ax5 = plt.subplots(figsize=(7, 5), facecolor="#020e1f")
-            ax5.set_facecolor("#031525")
+            style_ax(ax5)
             box_data = []
             for p in compare_periods:
                 try:
@@ -596,11 +465,8 @@ with tab4:
                     item.set_color("#7ec8e3")
             ax5.set_ylabel(VAR_LABEL, color="#7ec8e3")
             ax5.set_title("Boxplot SST per Periode", color="#38bdf8", fontweight="bold")
-            ax5.tick_params(colors="#7ec8e3")
             ax5.grid(True, axis="y", color="#0a4a6e", alpha=0.5, linestyle="--")
-            for spine in ax5.spines.values():
-                spine.set_edgecolor("#1565a0")
-            plt.xticks(rotation=30)
+            plt.xticks(rotation=30, color="#7ec8e3")
             plt.tight_layout()
             st.pyplot(fig5, use_container_width=True)
             plt.close(fig5)
@@ -608,7 +474,7 @@ with tab4:
         if has_time:
             st.markdown("#### 📈 Overlay Time Series SST Semua Periode")
             fig6, ax6 = plt.subplots(figsize=(13, 5), facecolor="#020e1f")
-            ax6.set_facecolor("#031525")
+            style_ax(ax6)
             for p, col in zip(compare_periods, OCEAN_COLORS):
                 try:
                     _ds   = load_dataset(p)
@@ -621,13 +487,8 @@ with tab4:
                     pass
             ax6.set_xlabel("Timestep", color="#7ec8e3")
             ax6.set_ylabel(VAR_LABEL, color="#7ec8e3")
-            ax6.set_title("Overlay Rata-rata Spasial SST per Periode",
-                          color="#38bdf8", fontweight="bold")
-            ax6.tick_params(colors="#7ec8e3")
+            ax6.set_title("Overlay Rata-rata Spasial SST per Periode", color="#38bdf8", fontweight="bold")
             ax6.legend(facecolor="#031525", edgecolor="#1565a0", labelcolor="#d0eaf8")
-            ax6.grid(True, color="#0a4a6e", alpha=0.5, linestyle="--")
-            for spine in ax6.spines.values():
-                spine.set_edgecolor("#1565a0")
             plt.tight_layout()
             st.pyplot(fig6, use_container_width=True)
             plt.close(fig6)
@@ -638,6 +499,6 @@ with tab4:
 st.markdown("""
 <div class='footer-text'>
   🌊 Dashboard Sea Surface Temperature (SST) &nbsp;·&nbsp; PROJEK PDK
-  &nbsp;·&nbsp; Streamlit + xarray + Cartopy &nbsp;·&nbsp; Python 3
+  &nbsp;·&nbsp; Streamlit + xarray &nbsp;·&nbsp; Python 3
 </div>
 """, unsafe_allow_html=True)
